@@ -27,6 +27,8 @@ jobs:
       # This action checks-out your CONFIGSitory under $GITHUB_WORKSPACE, so your workflow can access it.
       - name: 😄 Checkout
         uses: actions/checkout@v4
+      - name: Clean-up
+        uses: rokibhasansagar/slimhub_actions@main
 
       # Match the configuration files in the CONFIGS directory, read the contents and merge them into an array.
       - name: 😆 Generate Matrix
