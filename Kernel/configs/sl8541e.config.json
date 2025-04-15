@@ -1,11 +1,11 @@
 [
   {
     "kernelSource": {
-      "name": "KernelSPRD_armv7l_byVados",
+      "name": "KernelSPRDarmv7l",
       "repo": "https://github.com/vados-dev/android_kernel_sprd_lucyzh",
       "branch": "main",
       "device": "sl8541e",
-      "defconfig": "sdl8541e_cus_go_defconfig"
+      "defconfig": "sdl8541e_defconfig"
     },
     "toolchains": [
       {
@@ -17,7 +17,7 @@
     ],
     "enableCcache": true,
     "params": {
-      "ARCH": "arm",
+      "ARCH": "arm64",
       "CC": "clang",
       "externalCommands": {
         "CROSS_COMPILE": "proton-clang/bin/aarch64-linux-gnu-",
@@ -29,7 +29,7 @@
       "use": false,
       "release": true
     },
-    "enableKernelSU": true,
+    "enableKernelSU": false,
     "enableLXC": false
   }
 ]
