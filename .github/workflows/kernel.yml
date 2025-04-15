@@ -21,7 +21,6 @@ jobs:
   Read-configuration:
     name: 🐂 Parse *.config.json
     runs-on: ubuntu-22.0.4
-    if: github.event.repository.owner.id == github.event.sender.id
     outputs:
       CONFIGS: ${{ steps.generate-matrix.outputs.CONFIGS }}
       BUILD_DATE: ${{ steps.generate-builddate.outputs.BUILDDATE }}
@@ -53,6 +52,7 @@ jobs:
       fail-fast: false
       matrix:
         CONFIG: ${{ fromJSON(needs.Read-configuration.outputs.CONFIGS) }}
+    if: github.event.repository.owner.id == github.event.sender.id
     env:
       # Basic configuration
       WORKSPACE: ${{ github.workspace }}
