@@ -1,0 +1,20 @@
+[
+    {
+        "TWRP": {
+            "Repo": "https://github.com/PitchBlackRecoveryProject/manifest_pb.git",
+            "Branch": "10.0"
+        },
+        "Device": {
+            "Repo": "https://github.com/vados-dev/sl8541e_cus_go",
+            "Branch": "android-9.0",
+            "Location": "device/sprd/sl8541e_cus_go",
+            "DeviceName": "sl8541e_cus_go",
+            "Makefile": "omni_sl8541e_cus_go",
+            "BootPartition": "boot"
+        },
+    {
+        "BUILD_TARGET": {
+            "BuildTarget": "adbd pbrp",
+        }
+    }
+]
