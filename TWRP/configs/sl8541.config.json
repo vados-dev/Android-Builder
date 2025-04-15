@@ -10,11 +10,7 @@
             "Location": "device/sprd/sl8541e_cus_go",
             "DeviceName": "sl8541e_cus_go",
             "Makefile": "omni_sl8541e_cus_go",
-            "BootPartition": "boot"
-        },
-    {
-        "BUILD_TARGET": {
-            "BuildTarget": "adbd pbrp",
+            "BuildTarget": "adbd pbrp"
         }
     }
 ]
