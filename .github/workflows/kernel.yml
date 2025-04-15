@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - ".github/workflows/kernel.yml"
-  workflow_dispatch:
+#  workflow_dispatch:
 #  schedule:
 #    - cron: "14 13 * * 5"
 
@@ -73,12 +73,16 @@ jobs:
       # Set output & ccache directory
       OUT_DIR: "${{ github.workspace }}/out"
       CCACHE_DIR: "${{ github.workspace }}/ccache"
+      GITHUB_TOKEN: ${{ secrets.amster }}
+    permissions:
+      contents: write
+
     steps:
       # Set swap space
       - name: 📐 Set swap to 10G
         uses: pierotofy/set-swap-space@master
         with:
-          swap-size-gb: 10
+          swap-size-gb: 11
 
       # This action checks-out your CONFIGSitory under $GITHUB_WORKSPACE, so your workflow can access it.
       - name: 😄 Checkout
