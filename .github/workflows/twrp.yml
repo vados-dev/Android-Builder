@@ -49,9 +49,9 @@ jobs:
       BUILD_DATE: ${{ needs.Read-configuration.outputs.BUILD_DATE }}
 
       # OrangeFox sync scripts configuration
-      OF_LOCATION: ${{ github.workspace }}/OrangeFox
-      OF_SYNC_REPO: ${{ matrix.CONFIG.OrangeFox.Repo }}
-      OF_SYNC_BRANCH: ${{ matrix.CONFIG.OrangeFox.Branch }}
+      OF_LOCATION: ${{ github.workspace }}/TWRP
+      OF_SYNC_REPO: ${{ matrix.CONFIG.TWRP.Repo }}
+      OF_SYNC_BRANCH: ${{ matrix.CONFIG.TWRP.Branch }}
 
       # DeviceTree configuration
       DEVICE_REPO: ${{ matrix.CONFIG.Device.Repo }}
@@ -60,6 +60,7 @@ jobs:
       DEVICE_NAME: ${{ matrix.CONFIG.Device.DeviceName }}
       DEVICE_MAKEFILE: ${{ matrix.CONFIG.Device.Makefile }}
       DEVICE_BOOT_PARTITION: ${{ matrix.CONFIG.Device.BootPartition }}
+      DEVICE_BUILD_OPTIONS: ${{ matrix.CONFIG.Device.BootPartition }}
 
       # Set output & ccache directory
       OUT_DIR: "${{ github.workspace }}/out"
