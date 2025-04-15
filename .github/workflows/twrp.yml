@@ -59,8 +59,7 @@ jobs:
       DEVICE_LOCATION: ${{ matrix.CONFIG.Device.Location }}
       DEVICE_NAME: ${{ matrix.CONFIG.Device.DeviceName }}
       DEVICE_MAKEFILE: ${{ matrix.CONFIG.Device.Makefile }}
-      DEVICE_BOOT_PARTITION: ${{ matrix.CONFIG.Device.BootPartition }}
-      DEVICE_BUILD_OPTIONS: ${{ matrix.CONFIG.Device.BootPartition }}
+      DEVICE_BUILD_TARGET: ${{ matrix.CONFIG.Device.BuildTarget }}
 
       # Set output & ccache directory
       OUT_DIR: "${{ github.workspace }}/out"
@@ -107,7 +106,7 @@ jobs:
           source build/envsetup.sh
           export ALLOW_MISSING_DEPENDENCIES=true
           set -e
-          lunch ${{ env.DEVICE_MAKEFILE }}-eng && mka adbd ${{ env.DEVICE_BOOT_PARTITION }}image
+          lunch ${{ env.DEVICE_MAKEFILE }}-eng && mka ${{ env.DEVICE_BUILD_TARGET }}
 
       - name: ♎ Take the OrangeFox build
         uses: actions/upload-artifact@v4
