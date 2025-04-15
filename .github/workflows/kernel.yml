@@ -4,9 +4,18 @@ on:
   push:
     paths:
       - ".github/workflows/kernel.yml"
-#  workflow_dispatch:
+  workflow_dispatch:
 #  schedule:
 #    - cron: "14 13 * * 5"
+    inputs:
+      KERNEL_TREE:
+        description: 'Custom Kernel Tree URL'
+        required: true
+        default: 'https://github.com/vados-dev/android_kernel_sprd_lucyzh'
+      KERNEL_TREE_BRANCH:
+        description: 'Kernel Tree Branch (optional)'
+        required: false
+        default: 'main'
 
 jobs:
   Read-configuration:
@@ -50,8 +59,9 @@ jobs:
 
       # Kernel source configuration
       KERNEL_NAME: ${{ matrix.CONFIG.kernelSource.name }}
-      KERNEL_REPO: ${{ matrix.CONFIG.kernelSource.repo }}
-      KERNEL_BRANCH: ${{ matrix.CONFIG.kernelSource.branch }}
+      KERNEL_REPO: ${{ inputs.KERNEL_TREE }}
+      KERNEL_BRANCH: ${{ inputs.KERNEL_TREE_BRANCH }}
+#      KERNEL_BRANCH: ${{ matrix.CONFIG.kernelSource.branch }}
       KERNEL_DEVICE: ${{ matrix.CONFIG.kernelSource.device }}
       KERNEL_DEFCONFIG_PATH: ${{ matrix.CONFIG.kernelSource.defconfig }}
 
