@@ -1,12 +1,7 @@
 name: Build kernels
 
 on:
-  push:
-    paths:
-      - ".github/workflows/kernel.yml"
   workflow_dispatch:
-#  schedule:
-#    - cron: "14 13 * * 5"
     inputs:
       KERNEL_TREE:
         description: 'Custom Kernel Tree URL'
@@ -16,6 +11,9 @@ on:
         description: 'Kernel Tree Branch (optional)'
         required: false
         default: 'main'
+  push:
+    paths:
+      - ".github/workflows/kernel.yml"
 
 jobs:
   Read-configuration:
