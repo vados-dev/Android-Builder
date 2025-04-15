@@ -5,7 +5,7 @@
       "repo": "https://github.com/vados-dev/android_kernel_sprd_lucyzh",
       "branch": "main",
       "device": "sl8541e",
-      "defconfig": "sdl8541e_defconfig"
+      "defconfig": "sl8541e_defconfig"
     },
     "toolchains": [
       {
