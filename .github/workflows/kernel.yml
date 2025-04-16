@@ -66,6 +66,7 @@ jobs:
       ENABLE_LXC: ${{ matrix.CONFIG.enableLXC }}
       # Set output & ccache directory
       OUT_DIR: "${{ github.workspace }}/out"
+      KERNEL_DIR: "${{ github.workspace }}/${{ matrix.CONFIG.kernelSource.name }}"
       CCACHE_DIR: "${{ github.workspace }}/ccache"
       GITHUB_TOKEN: ${{ secrets.amster }}
     permissions:
@@ -127,6 +128,7 @@ jobs:
 
       - name: 🌟 Clone kernel source => (${{ env.KERNEL_REPO }})
         run: |
+          cd ${{ env.WORKSPACE }}
           git clone --recursive --depth=1 -j $(nproc) --branch ${{ env.KERNEL_BRANCH }} ${{ env.KERNEL_REPO }} ${{ env.KERNEL_NAME }}
           # tree ${{ env.KERNEL_NAME }}
 
@@ -134,6 +136,7 @@ jobs:
         env:
           toolchains: "${{ toJSON(matrix.CONFIG.toolchains) }}"
         run: |
+          cd ${{ env.WORKSPACE }}
           toolchains_num="$(echo $toolchains | jq 'length')"
           echo "🤔 There is $toolchains_num defined toolchains."
 
@@ -249,13 +252,14 @@ jobs:
           cat arch/${{ env.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG }}
 
       - name: 😋 Setup LXC docker
-        working-directory: ${{ env.KERNEL_NAME }}
+        working-directory: ${{ env.KERNEL_DIR }}
         env:
           ARCH: ${{ steps.generate-args.outputs.ARCH }}
           DEFCONFIG: ${{ env.WORKSPACE }}/${{ env.KERNEL_NAME }}/arch/${{ env.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG }}
           ADD_DEFCONFIG: ${{ env.WORKSPACE }}/Kernel/LXC/LXC_defconfig
         if: ${{ env.ENABLE_LXC == 'true' }}
         run: |
+          cd ${{ env.KERNEL_DIR }}
           # Add configuration
           for config in $(cat ${{ env.ADD_DEFCONFIG }})
           do
@@ -293,11 +297,13 @@ jobs:
           fi
 
       - name: 👍 Start building the kernel
-        working-directory: ${{ env.KERNEL_NAME }}
+        working-directory: ${{ env.KERNEL_DIR }}
         env:
           ARGS: ${{ steps.generate-args.outputs.ARGS }}
         run: |
+          echo "$ARGS"
           echo "**********************[ Start Build ]**********************"
+          cd ${{ env.KERNEL_DIR }}
           export KBUILD_BUILD_HOST=Github-Action
           export KBUILD_BUILD_USER=$(echo ${{ github.actor }} | tr A-Z a-z)
           make ${{ env.ARGS }} ${{ env.KERNEL_DEFCONFIG }}
