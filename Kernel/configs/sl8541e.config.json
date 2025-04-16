@@ -17,7 +17,7 @@
     ],
     "enableCcache": true,
     "params": {
-      "ARCH": "arm64",
+      "ARCH": "arm",
       "CC": "clang",
       "externalCommands": {
         "CROSS_COMPILE": "proton-clang/bin/arm-linux-gnueabi-",
