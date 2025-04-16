@@ -134,7 +134,6 @@ jobs:
         env:
           toolchains: "${{ toJSON(matrix.CONFIG.toolchains) }}"
         run: |
-          echo $toolchains
           toolchains_num="$(echo $toolchains | jq 'length')"
           echo "🤔 There is $toolchains_num defined toolchains."
 
@@ -188,53 +187,43 @@ jobs:
               echo "${{ env.WORKSPACE }}/$toolchain_name/$subPath" >> $GITHUB_PATH
             done
           done
-
       - name: 😎 Set build args
         id: generate-args
         env:
-          PARAMS: ${{ toJSON(matrix.CONFIG.params) }}
+          PARAMS: "${{ toJSON(matrix.CONFIG.params) }}"
           THREAD: $(nproc --all)
         run: |
-          echo 🤔 ARCH Variable: ${{ env.ARCH  }}
-          echo *****
-          echo 🤔 PARAMS Variable: '$PARAMS'
-          echo *****
-          echo 🤔 THREAD Variable: ${{ env.THREAD }}
-          echo *****
-          echo 🤔 OUT_DIR Variable: ${{ env.OUT_DIR }}
-          echo *****
+          echo "🤔 PATH Variable: $PATH"
 
-          #CC=$(echo $PARAMS | jq -r ".CC")
-          echo *****
-          echo $CC
-          echo *****
+          ARCH=$(echo $PARAMS | jq -r ".ARCH")
+          CC=$(echo $PARAMS | jq -r ".CC")
 
-          args=-j${{ env.THREAD }} O=${{ env.OUT_DIR }} ARCH=${{ env.ARCH  }}
-          if [ -n $CC ]; then
+          args="-j${{ env.THREAD }} O=${{ env.OUT_DIR }} ARCH=$ARCH"
+          if [ -n "$CC" ]; then
 
-            if [[ $CC == *"/"* ]]; then
+            if [[ "$CC" == *"/"* ]]; then
               CC=${{ env.WORKSPACE }}/$CC
             fi
 
             if [ ${{ env.ENABLE_CCACHE }} = true ]; then
-              args=$args' CC=ccache '$CC
+              args="$args CC=\"ccache $CC\""
             else
-              args=$args' CC='$CC
+              args="$args CC=$CC"
             fi
           fi
           while read -r externalCommand; do
-            key=$(echo $externalCommand | cut -d= -f1)
-            value=$(echo $externalCommand | cut -d= -f2)
-            if [[ $value == *"/"* ]]; then
-              value=${{ env.WORKSPACE }}/$value
+            key=$(echo "$externalCommand" | cut -d= -f1)
+            value=$(echo "$externalCommand" | cut -d= -f2)
+            if [[ "$value" == *"/"* ]]; then
+              value="${{ env.WORKSPACE }}/$value"
             fi
-            args=$args' '$key=$value
-          done < <(jq -r '.externalCommands | to_entries[] | "\(.key)=\(.value)"' <<< $PARAMS)
+            args="$args $key=$value"
+          done < <(jq -r '.externalCommands | to_entries[] | "\(.key)=\(.value)"' <<< "$PARAMS")
 
-          echo ARCH=$ARCH >> $GITHUB_OUTPUT
-          echo ARGS=$args >> $GITHUB_OUTPUT
+          echo "ARCH=$ARCH" >> $GITHUB_OUTPUT
+          echo "ARGS=$args" >> $GITHUB_OUTPUT
 
-          echo 🤔 $args
+          echo "🤔 $args"
 
       - name: 😋 Setup KernelSU
         working-directory: ${{ env.KERNEL_NAME }}
@@ -308,16 +297,9 @@ jobs:
         env:
           ARGS: ${{ steps.generate-args.outputs.ARGS }}
         run: |
-          echo *****[ show variables ]*****
-          echo 🤔 ARGS Variable: $ARGS
-          echo 🤔 KERNEL_NAME Variable: ${{ env.KERNEL_NAME }}
-          echo 🤔 KERNEL_DEFCONFIG_PATH Variable: ${{ env.KERNEL_DEFCONFIG_PATH }}
-          echo *****[ end variables ]*****
+          echo "**********************[ Start Build ]**********************"
           export KBUILD_BUILD_HOST=Github-Action
-          export KBUILD_BUILD_USER=${{ github.actor }}
-          echo **********************************************************************************
-          echo *************************************[ Start ]************************************
-          echo **********************************************************************************
+          export KBUILD_BUILD_USER=$(echo ${{ github.actor }} | tr A-Z a-z)
           make ${{ env.ARGS }} ${{ env.KERNEL_DEFCONFIG_PATH }}
           make ${{ env.ARGS }}
           # tree ${{ env.OUT_DIR }}
