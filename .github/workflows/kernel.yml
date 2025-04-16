@@ -106,7 +106,7 @@ jobs:
         run: |
           sudo add-apt-repository -y ppa:deadsnakes/ppa
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y binutils make automake cpio libelf-dev python3 python2 python-dev
+          sudo apt-get install --no-install-recommends -y binutils make automake cpio libelf-dev python3 python2 python2-dev
           sudo apt-get install --no-install-recommends -y libtfm-dev libc6-dev libc6-dev-i386 device-tree-compiler ca-certificates python2 python2-dev
           sudo apt-get install --no-install-recommends -y aria2 build-essential pigz libssl-dev curl ftp lftp wget libx11-dev xsltproc
           sudo apt-get install --no-install-recommends -y zip unzip tar gzip bzip2 rar unrar xz-utils bzip2 rar unrar lzop tree libarchive-tools git
