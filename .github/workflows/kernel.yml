@@ -1,20 +1,8 @@
 name: Build kernels
-
+env:
+      DOCKER_DEFAULT_PLATFORM: linux/amd64
 on:
-  push:
-    paths:
-      - ".github/workflows/kernel.yml"
-      
   workflow_dispatch:
-    inputs:
-      KERNEL_TREE:
-        description: 'Custom Kernel Tree URL'
-        required: true
-        default: 'https://github.com/vados-dev/android_kernel_sprd_lucyzh'
-      KERNEL_TREE_BRANCH:
-        description: 'Kernel Tree Branch (optional)'
-        required: false
-        default: 'main'
 
 jobs:
   Read-configuration:
@@ -55,7 +43,6 @@ jobs:
         CONFIG: ${{ fromJSON(needs.Read-configuration.outputs.CONFIGS) }}
     if: github.event.repository.owner.id == github.event.sender.id
     env:
-      DOCKER_DEFAULT_PLATFORM: linux/amd64
       # Basic configuration
       WORKSPACE: ${{ github.workspace }}
       BUILD_DATE: "${{ needs.Read-configuration.outputs.BUILD_DATE }}"
@@ -120,8 +107,8 @@ jobs:
         if: ${{ env.ENABLE_CCACHE == 'true' }}
         id: hash
         run: |
-          # Create output directory
-          mkdir -p ${{ env.OUT_DIR }}
+          echo "Create output directory"
+          mkdir -p ${{ env.OUT_DIR }} 
 
           # Initialize ccache
           ccache -o compression=false -o cache_dir=${{ env.CCACHE_DIR }}
@@ -131,6 +118,7 @@ jobs:
           echo "HASH=$(echo -n '${{ toJSON(matrix.config) }}' | openssl dgst -sha1 | awk '{print $2}')" >> $GITHUB_OUTPUT
 
       - name: 🚅 Cache ccache & output
+          echo ${{ steps.hash.outputs.HASH }}
         env:
           HASH: ${{ steps.hash.outputs.HASH }}
         if: ${{ env.ENABLE_CCACHE == 'true' }}
@@ -152,10 +140,11 @@ jobs:
 
       - name: 💫 Get toolchains
         env:
-          toolchains: ${{ toJSON(matrix.CONFIG.toolchains) }}
+          toolchains: "${{ toJSON(matrix.CONFIG.toolchains) }}"
         run: |
-          toolchains_num=$(echo $toolchains | jq 'length')
-          echo 🤔 There is $toolchains_num defined toolchains.
+          echo $toolchains
+          toolchains_num="$(echo $toolchains | jq 'length')"
+          echo "🤔 There is $toolchains_num defined toolchains."
 
           for ((i=0;i<toolchains_num;i++)); do
             toolchain=$(echo $toolchains | jq -r ".[$i]")
@@ -168,43 +157,43 @@ jobs:
               toolchain_url=$(echo $toolchain | jq -r ".url")
               mkdir -p '$toolchain_name'
 
-              echo Download archive toolchjains
-              wget '$toolchain_url'
+              # Download archive
+              wget "$toolchain_url"
 
               # Get filename
-              filename='${toolchain_url##*/}'
-              case $filename in
+              filename="${toolchain_url##*/}"
+              case "$filename" in
                 *.zip)
-                  unzip -d $toolchain_name $filename
+                  unzip -d $toolchain_name "$filename"
                   ;;
                 *.tar)
-                  tar xvf $filename -C $toolchain_name
+                  tar xvf "$filename" -C $toolchain_name
                   ;;
                 *.tar.gz)
-                  tar zxvf $filename -C $toolchain_name
+                  tar zxvf "$filename" -C $toolchain_name
                   ;;
                 *.rar)
-                  unrar x $filename $toolchain_name
+                  unrar x "$filename" $toolchain_name
                   ;;
                 *)
-                  echo unknown file type: $filename
+                  echo "unknown file type: $filename"
                   ;;
               esac
-              echo Delete file to avoid duplicate name conflicts 
+              # Delete file to avoid duplicate name conflicts 
               rm $filename
 
-              echo 🤔 Download $toolchain_name => ($toolchain_url)
+              echo "🤔 Download $toolchain_name => ($toolchain_url)"
             else
               # If from git
               toolchain_repo=$(echo $toolchain | jq -r ".repo")
               toolchain_branch=$(echo $toolchain | jq -r ".branch")
               git clone --recursive --depth=1 -j $(nproc) --branch $toolchain_branch $toolchain_repo $toolchain_name
 
-              echo 🤔 Clone $toolchain_name => ($toolchain_repo)
+              echo "🤔 Clone $toolchain_name => ($toolchain_repo)"
             fi
 
-            jq -r '.binaryEnv[] | tostring' <<< '$toolchain' | while read -r subPath; do
-              echo ${{ env.WORKSPACE }}/$toolchain_name/$subPath >> $GITHUB_PATH
+            jq -r ".binaryEnv[] | tostring" <<< "$toolchain" | while read -r subPath; do
+              echo "${{ env.WORKSPACE }}/$toolchain_name/$subPath" >> $GITHUB_PATH
             done
           done
 
