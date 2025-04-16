@@ -20,7 +20,7 @@
       "ARCH": "arm64",
       "CC": "clang",
       "externalCommands": {
-        "CROSS_COMPILE": "proton-clang/bin/aarch64-linux-gnu-",
+        "CROSS_COMPILE": "proton-clang/bin/arm-linux-gnueabi-",
         "CROSS_COMPILE_ARM32": "proton-clang/bin/arm-linux-gnueabi-",
         "CLANG_TRIPLE": "arm-linux-gnueabi-"
       }
