@@ -54,29 +54,22 @@ jobs:
       KERNEL_DEVICE: ${{ matrix.CONFIG.kernelSource.device }}
       KERNEL_DEFCONFIG_PATH: ${{ matrix.CONFIG.kernelSource.defconfig }}
       KERNEL_ARCH: ${{ matrix.CONFIG.kernelSource.arch }}
-
       # Whether to use ccache to speed up compilation
       ENABLE_CCACHE: ${{ matrix.CONFIG.enableCcache }}
-
       # Whether to use ANYKERNEL3 packaged flash package
       USE_ANYKERNEL3: ${{ matrix.CONFIG.AnyKernel3.use }}
-
       # Whether to publish
       CONFIRM_RELEASE: ${{ matrix.CONFIG.AnyKernel3.release }}
-
       # Whether to enable KernelSU
       ENABLE_KERNELSU: ${{ matrix.CONFIG.enableKernelSU }}
-
       # Whether to enable LXC docker
       ENABLE_LXC: ${{ matrix.CONFIG.enableLXC }}
-
       # Set output & ccache directory
       OUT_DIR: "${{ github.workspace }}/out"
       CCACHE_DIR: "${{ github.workspace }}/ccache"
       GITHUB_TOKEN: ${{ secrets.amster }}
     permissions:
       contents: write
-
     steps:
       # Set swap space
       - name: 📐 Set swap to 11G
@@ -109,10 +102,8 @@ jobs:
         run: |
           echo "Create output directory"
           mkdir -p ${{ env.OUT_DIR }} 
-
           # Initialize ccache
           ccache -o compression=false -o cache_dir=${{ env.CCACHE_DIR }}
-
           # Generate configuration's hash
           echo $(echo -n '${{ toJSON(matrix.config) }}' | openssl dgst -sha1 | awk '{print $2}')
           echo "HASH=$(echo -n '${{ toJSON(matrix.config) }}' | openssl dgst -sha1 | awk '{print $2}')" >> $GITHUB_OUTPUT
@@ -307,9 +298,14 @@ jobs:
         env:
           ARGS: ${{ steps.generate-args.outputs.ARGS }}
         run: |
-          echo 🤔 PATH Variable: $PATH
+          echo 🤔 ARGS Variable: $ARGS
+          echo 🤔 KERNEL_NAME Variable: ${{ env.KERNEL_NAME }}
+          echo 🤔 KERNEL_DEFCONFIG_PATH Variable: ${{ env.KERNEL_DEFCONFIG_PATH }}
           export KBUILD_BUILD_HOST=Github-Action
-          export KBUILD_BUILD_USER=$(echo ${{ github.actor }} | tr A-Z a-z)
+          export KBUILD_BUILD_USER=${{ github.actor }}
+          echo **********************************************************************************
+          echo *************************************[ Start ]************************************
+          echo **********************************************************************************
           make ${{ env.ARGS }} ${{ env.KERNEL_DEFCONFIG_PATH }}
           make ${{ env.ARGS }}
           # tree ${{ env.OUT_DIR }}
