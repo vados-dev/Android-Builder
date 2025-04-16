@@ -242,17 +242,17 @@ jobs:
           # Apply new KernelSU patches
           curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
 
-          echo -e "CONFIG_KPROBES=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG_PATH }}
-          echo -e "CONFIG_HAVE_KPROBES=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG_PATH }}
-          echo -e "CONFIG_KPROBE_EVENTS=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG_PATH }}
+          echo -e "CONFIG_KPROBES=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG }}
+          echo -e "CONFIG_HAVE_KPROBES=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG }}
+          echo -e "CONFIG_KPROBE_EVENTS=y" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG }}
 
-          cat arch/${{ env.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG_PATH }}
+          cat arch/${{ env.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG }}
 
       - name: 😋 Setup LXC docker
         working-directory: ${{ env.KERNEL_NAME }}
         env:
           ARCH: ${{ steps.generate-args.outputs.ARCH }}
-          DEFCONFIG: ${{ env.WORKSPACE }}/${{ env.KERNEL_NAME }}/arch/${{ env.ARCH }}/configs/${{env.KERNEL_DEFCONFIG_PATH}}
+          DEFCONFIG: ${{ env.WORKSPACE }}/${{ env.KERNEL_NAME }}/arch/${{ env.ARCH }}/configs/${{ env.KERNEL_DEFCONFIG }}
           ADD_DEFCONFIG: ${{ env.WORKSPACE }}/Kernel/LXC/LXC_defconfig
         if: ${{ env.ENABLE_LXC == 'true' }}
         run: |
@@ -300,7 +300,7 @@ jobs:
           echo "**********************[ Start Build ]**********************"
           export KBUILD_BUILD_HOST=Github-Action
           export KBUILD_BUILD_USER=$(echo ${{ github.actor }} | tr A-Z a-z)
-          make ${{ env.ARGS }} ${{ env.KERNEL_DEFCONFIG_PATH }}
+          make ${{ env.ARGS }} ${{ env.KERNEL_DEFCONFIG }}
           make ${{ env.ARGS }}
           # tree ${{ env.OUT_DIR }}
 
