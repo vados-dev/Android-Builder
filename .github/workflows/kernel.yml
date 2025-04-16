@@ -187,6 +187,7 @@ jobs:
               echo "${{ env.WORKSPACE }}/$toolchain_name/$subPath" >> $GITHUB_PATH
             done
           done
+          
       - name: 😎 Set build args
         id: generate-args
         env:
@@ -195,7 +196,6 @@ jobs:
         run: |
           echo "🤔 PATH Variable: $PATH"
 
-          ARCH=$(echo $PARAMS | jq -r ".ARCH")
           CC=$(echo $PARAMS | jq -r ".CC")
 
           args="-j${{ env.THREAD }} O=${{ env.OUT_DIR }} ARCH=$ARCH"
