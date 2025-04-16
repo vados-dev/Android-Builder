@@ -214,12 +214,12 @@ jobs:
           PARAMS: "${{ toJSON(matrix.CONFIG.params) }}"
           THREAD: $(nproc --all)
         run: |
-          echo 🤔 PATH Variable: ${{ PATH }}
+          echo 🤔 PATH Variable: $PATH
 
           ARCH=$(echo $PARAMS | jq -r ".ARCH")
           CC=$(echo $PARAMS | jq -r ".CC")
 
-          args="-j${{ env.THREAD }} O=${{ env.OUT_DIR }} ARCH=${{ ARCH }}"
+          args="-j${{ env.THREAD }} O=${{ env.OUT_DIR }} ARCH="$ARCH
           if [ -n "$CC" ]; then
 
             if [[ "$CC" == *"/"* ]]; then
@@ -227,9 +227,9 @@ jobs:
             fi
 
             if [ ${{ env.ENABLE_CCACHE }} = true ]; then
-              args="$args CC=ccache ${{ CC }}"
+              args="$args CC=ccache "$CC
             else
-              args="$args CC=${{ CC }}"
+              args="$args CC="$CC
             fi
           fi
           while read -r externalCommand; do
