@@ -16,7 +16,7 @@
         "binaryEnv": ["./bin"]
       }
     ],
-    "enableCcache": true,
+    "enableCcache": false,
     "params": {
       "CC": "clang",
       "externalCommands": {
