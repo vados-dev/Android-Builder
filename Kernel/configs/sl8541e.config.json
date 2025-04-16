@@ -4,8 +4,9 @@
       "name": "KernelSPRDarmv7l",
       "repo": "https://github.com/vados-dev/android_kernel_sprd_lucyzh",
       "branch": "main",
+      "arch": "arm",
       "device": "sl8541e",
-      "defconfig": "sl8541e_defconfig"
+      "defconfig": "sl8541e_cus_go_defconfig"
     },
     "toolchains": [
       {
@@ -17,7 +18,6 @@
     ],
     "enableCcache": true,
     "params": {
-      "ARCH": "arm",
       "CC": "clang",
       "externalCommands": {
         "CROSS_COMPILE": "proton-clang/bin/arm-linux-gnueabi-",
