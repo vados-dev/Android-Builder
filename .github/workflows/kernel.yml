@@ -44,7 +44,7 @@ jobs:
         run: echo "BUILDDATE=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
 
   Build-Kernel:
-    name: "🐎 Build kernel"
+    name: 🤞 Build kernel
     runs-on: ubuntu-22.04
     needs:
       - Read-configuration
@@ -62,11 +62,11 @@ jobs:
 
       # Kernel source configuration
       KERNEL_NAME: ${{ matrix.CONFIG.kernelSource.name }}
-      KERNEL_REPO: ${{ inputs.KERNEL_TREE }}
-      KERNEL_BRANCH: ${{ inputs.KERNEL_TREE_BRANCH }}
-#      KERNEL_BRANCH: ${{ matrix.CONFIG.kernelSource.branch }}
+      KERNEL_REPO: ${{ matrix.CONFIG.kernelSource.repo }}
+      KERNEL_BRANCH: ${{ matrix.CONFIG.kernelSource.branch }}
       KERNEL_DEVICE: ${{ matrix.CONFIG.kernelSource.device }}
       KERNEL_DEFCONFIG_PATH: ${{ matrix.CONFIG.kernelSource.defconfig }}
+      KERNEL_ARCH: ${{ matrix.CONFIG.kernelSource.arch }}
 
       # Whether to use ccache to speed up compilation
       ENABLE_CCACHE: ${{ matrix.CONFIG.enableCcache }}
@@ -152,10 +152,10 @@ jobs:
 
       - name: 💫 Get toolchains
         env:
-          toolchains: "${{ toJSON(matrix.CONFIG.toolchains) }}"
+          toolchains: ${{ toJSON(matrix.CONFIG.toolchains) }}
         run: |
-          toolchains_num="$(echo $toolchains | jq 'length')"
-          echo "🤔 There is $toolchains_num defined toolchains."
+          toolchains_num=$(echo $toolchains | jq 'length')
+          echo 🤔 There is $toolchains_num defined toolchains.
 
           for ((i=0;i<toolchains_num;i++)); do
             toolchain=$(echo $toolchains | jq -r ".[$i]")
@@ -168,83 +168,83 @@ jobs:
               toolchain_url=$(echo $toolchain | jq -r ".url")
               mkdir -p '$toolchain_name'
 
-              # Download archive
-              wget "$toolchain_url"
+              echo Download archive toolchjains
+              wget '$toolchain_url'
 
               # Get filename
-              filename="${toolchain_url##*/}"
-              case "$filename" in
+              filename='${toolchain_url##*/}'
+              case $filename in
                 *.zip)
-                  unzip -d $toolchain_name "$filename"
+                  unzip -d $toolchain_name $filename
                   ;;
                 *.tar)
-                  tar xvf "$filename" -C $toolchain_name
+                  tar xvf $filename -C $toolchain_name
                   ;;
                 *.tar.gz)
-                  tar zxvf "$filename" -C $toolchain_name
+                  tar zxvf $filename -C $toolchain_name
                   ;;
                 *.rar)
-                  unrar x "$filename" $toolchain_name
+                  unrar x $filename $toolchain_name
                   ;;
                 *)
-                  echo "unknown file type: $filename"
+                  echo unknown file type: $filename
                   ;;
               esac
-              # Delete file to avoid duplicate name conflicts 
+              echo Delete file to avoid duplicate name conflicts 
               rm $filename
 
-              echo "🤔 Download $toolchain_name => ($toolchain_url)"
+              echo 🤔 Download $toolchain_name => ($toolchain_url)
             else
               # If from git
               toolchain_repo=$(echo $toolchain | jq -r ".repo")
               toolchain_branch=$(echo $toolchain | jq -r ".branch")
               git clone --recursive --depth=1 -j $(nproc) --branch $toolchain_branch $toolchain_repo $toolchain_name
 
-              echo "🤔 Clone $toolchain_name => ($toolchain_repo)"
+              echo 🤔 Clone $toolchain_name => ($toolchain_repo)
             fi
 
-            jq -r ".binaryEnv[] | tostring" <<< "$toolchain" | while read -r subPath; do
-              echo "${{ env.WORKSPACE }}/$toolchain_name/$subPath" >> $GITHUB_PATH
+            jq -r '.binaryEnv[] | tostring' <<< '$toolchain' | while read -r subPath; do
+              echo ${{ env.WORKSPACE }}/$toolchain_name/$subPath >> $GITHUB_PATH
             done
           done
 
       - name: 😎 Set build args
         id: generate-args
         env:
-          PARAMS: "${{ toJSON(matrix.CONFIG.params) }}"
+          PARAMS: ${{ toJSON(matrix.CONFIG.params) }}
           THREAD: $(nproc --all)
         run: |
-          echo 🤔 PATH Variable: $PATH
+          echo 🤔 ARCH Variable: $KERNEL_ARCH
 
-          ARCH=$(echo $PARAMS | jq -r ".ARCH")
+          ARCH=$KERNEL_ARCH
           CC=$(echo $PARAMS | jq -r ".CC")
 
-          args="-j${{ env.THREAD }} O=${{ env.OUT_DIR }} ARCH="$ARCH
-          if [ -n "$CC" ]; then
+          args=-j${{ env.THREAD }} O=${{ env.OUT_DIR }} ARCH=$ARCH
+          if [ -n $CC ]; then
 
-            if [[ "$CC" == *"/"* ]]; then
+            if [[ $CC == *"/"* ]]; then
               CC=${{ env.WORKSPACE }}/$CC
             fi
 
             if [ ${{ env.ENABLE_CCACHE }} = true ]; then
-              args="$args CC=ccache "$CC
+              args=$args' CC=ccache '$CC
             else
-              args="$args CC="$CC
+              args=$args' CC='$CC
             fi
           fi
           while read -r externalCommand; do
-            key=$(echo "$externalCommand }}" | cut -d= -f1)
-            value=$(echo "$externalCommand }}" | cut -d= -f2)
-            if [[ "$value" == *"/"* ]]; then
-              value="${{ env.WORKSPACE }}/$value"
+            key=$(echo $externalCommand | cut -d= -f1)
+            value=$(echo $externalCommand | cut -d= -f2)
+            if [[ $value == *"/"* ]]; then
+              value=${{ env.WORKSPACE }}/$value
             fi
-            args="$args $key=$value"
-          done < <(jq -r '.externalCommands | to_entries[] | "\(.key)=\(.value)"' <<< "$PARAMS")
+            args=$args' '$key=$value
+          done < <(jq -r '.externalCommands | to_entries[] | "\(.key)=\(.value)"' <<< $PARAMS)
 
           echo ARCH=$ARCH >> $GITHUB_OUTPUT
           echo ARGS=$args >> $GITHUB_OUTPUT
 
-          echo "🤔 "$args
+          echo 🤔 $args
 
       - name: 😋 Setup KernelSU
         working-directory: ${{ env.KERNEL_NAME }}
@@ -253,11 +253,11 @@ jobs:
         if: ${{ env.ENABLE_KERNELSU == 'true' }}
         run: |
           # Delete old KernelSU
-          if [ -d "./KernelSU" ]; then
-            rm -rf "./KernelSU"
+          if [ -d ./KernelSU ]; then
+            rm -rf ./KernelSU
           fi
-          if [ -d "./drivers/kernelsu" ]; then
-            rm -rf "./drivers/kernelsu"
+          if [ -d ./drivers/kernelsu ]; then
+            rm -rf ./drivers/kernelsu
           fi
 
           # Apply new KernelSU patches
@@ -272,7 +272,8 @@ jobs:
       - name: 😋 Setup LXC docker
         working-directory: ${{ env.KERNEL_NAME }}
         env:
-          DEFCONFIG: ${{ env.WORKSPACE }}/${{ env.KERNEL_NAME }}/arch/${{ steps.generate-args.outputs.ARCH }}/configs/${{env.KERNEL_DEFCONFIG_PATH}}
+          ARCH: ${{ steps.generate-args.outputs.ARCH }}
+          DEFCONFIG: ${{ env.WORKSPACE }}/${{ env.KERNEL_NAME }}/arch/${{ env.ARCH }}/configs/${{env.KERNEL_DEFCONFIG_PATH}}
           ADD_DEFCONFIG: ${{ env.WORKSPACE }}/Kernel/LXC/LXC_defconfig
         if: ${{ env.ENABLE_LXC == 'true' }}
         run: |
@@ -317,7 +318,7 @@ jobs:
         env:
           ARGS: ${{ steps.generate-args.outputs.ARGS }}
         run: |
-          echo "🤔 PATH Variable: $PATH"
+          echo 🤔 PATH Variable: $PATH
           export KBUILD_BUILD_HOST=Github-Action
           export KBUILD_BUILD_USER=$(echo ${{ github.actor }} | tr A-Z a-z)
           make ${{ env.ARGS }} ${{ env.KERNEL_DEFCONFIG_PATH }}
