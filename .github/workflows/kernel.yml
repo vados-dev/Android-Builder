@@ -52,8 +52,8 @@ jobs:
       KERNEL_REPO: ${{ matrix.CONFIG.kernelSource.repo }}
       KERNEL_BRANCH: ${{ matrix.CONFIG.kernelSource.branch }}
       KERNEL_DEVICE: ${{ matrix.CONFIG.kernelSource.device }}
-      KERNEL_DEFCONFIG_PATH: ${{ matrix.CONFIG.kernelSource.defconfig }}
-      KERNEL_ARCH: ${{ matrix.CONFIG.kernelSource.arch }}
+      KERNEL_DEFCONFIG: ${{ matrix.CONFIG.kernelSource.defconfig }}
+      ARCH: ${{ matrix.CONFIG.kernelSource.arch }}
       # Whether to use ccache to speed up compilation
       ENABLE_CCACHE: ${{ matrix.CONFIG.enableCcache }}
       # Whether to use ANYKERNEL3 packaged flash package
@@ -194,12 +194,21 @@ jobs:
           PARAMS: ${{ toJSON(matrix.CONFIG.params) }}
           THREAD: $(nproc --all)
         run: |
-          echo 🤔 ARCH Variable: $KERNEL_ARCH
+          echo 🤔 ARCH Variable: ${{ env.ARCH  }}
+          echo *****
+          echo 🤔 PARAMS Variable: ${{ env.PARAMS  }}
+          echo *****
+          echo 🤔 THREAD Variable: ${{ env.THREAD }}
+          echo *****
+          echo 🤔 OUT_DIR Variable: ${{ env.OUT_DIR }}
+          echo *****
 
-          ARCH=$KERNEL_ARCH
           CC=$(echo $PARAMS | jq -r ".CC")
+          echo *****
+          echo $CC
+          echo *****
 
-          args=-j${{ env.THREAD }} O=${{ env.OUT_DIR }} ARCH=$ARCH
+          args=-j${{ env.THREAD }} O=${{ env.OUT_DIR }} ARCH=${{ env.ARCH  }}
           if [ -n $CC ]; then
 
             if [[ $CC == *"/"* ]]; then
@@ -298,9 +307,11 @@ jobs:
         env:
           ARGS: ${{ steps.generate-args.outputs.ARGS }}
         run: |
+          echo *****[ show variables ]*****
           echo 🤔 ARGS Variable: $ARGS
           echo 🤔 KERNEL_NAME Variable: ${{ env.KERNEL_NAME }}
           echo 🤔 KERNEL_DEFCONFIG_PATH Variable: ${{ env.KERNEL_DEFCONFIG_PATH }}
+          echo *****[ end variables ]*****
           export KBUILD_BUILD_HOST=Github-Action
           export KBUILD_BUILD_USER=${{ github.actor }}
           echo **********************************************************************************
