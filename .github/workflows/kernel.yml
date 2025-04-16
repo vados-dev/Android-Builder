@@ -100,20 +100,21 @@ jobs:
         if: ${{ env.ENABLE_CCACHE == 'true' }}
         id: hash
         run: |
-          echo "Create output directory"
-          mkdir -p ${{ env.OUT_DIR }} 
+          # Create output directory
+          mkdir -p ${{ env.OUT_DIR }}
+
           # Initialize ccache
           ccache -o compression=false -o cache_dir=${{ env.CCACHE_DIR }}
+
           # Generate configuration's hash
           echo $(echo -n '${{ toJSON(matrix.config) }}' | openssl dgst -sha1 | awk '{print $2}')
           echo "HASH=$(echo -n '${{ toJSON(matrix.config) }}' | openssl dgst -sha1 | awk '{print $2}')" >> $GITHUB_OUTPUT
 
       - name: 🚅 Cache ccache & output
-          echo ${{ steps.hash.outputs.HASH }}
-        env:
+        env:  
           HASH: ${{ steps.hash.outputs.HASH }}
         if: ${{ env.ENABLE_CCACHE == 'true' }}
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
           path: |
             ${{ env.OUT_DIR }}
