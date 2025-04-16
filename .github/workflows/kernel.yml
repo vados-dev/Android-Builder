@@ -196,14 +196,14 @@ jobs:
         run: |
           echo 🤔 ARCH Variable: ${{ env.ARCH  }}
           echo *****
-          echo 🤔 PARAMS Variable: ${{ env.PARAMS  }}
+          echo 🤔 PARAMS Variable: '$PARAMS'
           echo *****
           echo 🤔 THREAD Variable: ${{ env.THREAD }}
           echo *****
           echo 🤔 OUT_DIR Variable: ${{ env.OUT_DIR }}
           echo *****
 
-          CC=$(echo $PARAMS | jq -r ".CC")
+          #CC=$(echo $PARAMS | jq -r ".CC")
           echo *****
           echo $CC
           echo *****
