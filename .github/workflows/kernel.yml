@@ -103,6 +103,7 @@ jobs:
       # Install prerequisites for Ubuntu
       - name: ⭐ Install prerequisites
         run: |
+          sudo add-apt-repository -y ppa:deadsnakes/ppa
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y binutils make automake cpio libelf-dev python3 python-is-python3 python-dev-is-python3
           sudo apt-get install --no-install-recommends -y libtfm-dev libc6-dev libc6-dev-i386 device-tree-compiler ca-certificates python2 python2-dev
@@ -212,12 +213,12 @@ jobs:
           PARAMS: "${{ toJSON(matrix.CONFIG.params) }}"
           THREAD: $(nproc --all)
         run: |
-          echo "🤔 PATH Variable: $PATH"
+          echo 🤔 PATH Variable: ${{ PATH }}
 
           ARCH=$(echo $PARAMS | jq -r ".ARCH")
           CC=$(echo $PARAMS | jq -r ".CC")
 
-          args="-j${{ env.THREAD }} O=${{ env.OUT_DIR }} ARCH=$ARCH"
+          args="-j${{ env.THREAD }} O=${{ env.OUT_DIR }} ARCH=${{ ARCH }}"
           if [ -n "$CC" ]; then
 
             if [[ "$CC" == *"/"* ]]; then
@@ -225,24 +226,24 @@ jobs:
             fi
 
             if [ ${{ env.ENABLE_CCACHE }} = true ]; then
-              args="$args CC=\"ccache $CC\""
+              args="$args CC=ccache ${{ CC }}"
             else
-              args="$args CC=$CC"
+              args="$args CC=${{ CC }}"
             fi
           fi
           while read -r externalCommand; do
-            key=$(echo "$externalCommand" | cut -d= -f1)
-            value=$(echo "$externalCommand" | cut -d= -f2)
+            key=$(echo "$externalCommand }}" | cut -d= -f1)
+            value=$(echo "$externalCommand }}" | cut -d= -f2)
             if [[ "$value" == *"/"* ]]; then
               value="${{ env.WORKSPACE }}/$value"
             fi
             args="$args $key=$value"
           done < <(jq -r '.externalCommands | to_entries[] | "\(.key)=\(.value)"' <<< "$PARAMS")
 
-          echo "ARCH=$ARCH" >> $GITHUB_OUTPUT
-          echo "ARGS=$args" >> $GITHUB_OUTPUT
+          echo ARCH=$ARCH >> $GITHUB_OUTPUT
+          echo ARGS=$args >> $GITHUB_OUTPUT
 
-          echo "🤔 $args"
+          echo "🤔 "$args
 
       - name: 😋 Setup KernelSU
         working-directory: ${{ env.KERNEL_NAME }}
